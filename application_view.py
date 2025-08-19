@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
 
-from expense_entry_dialog import ExpenseEntryDialog
-from expense_view_model import ExpenseViewModel
+from application_dialog import ApplicationDialog
+from application_view_model import ApplicationViewModel
 
 
 def format_currency(amount: int | float):
@@ -17,8 +17,8 @@ def is_float(value: str):
         return False
 
 
-class MainWindow(tk.Tk):
-    def __init__(self, viewmodel: ExpenseViewModel):
+class ApplicationView(tk.Tk):
+    def __init__(self, viewmodel: ApplicationViewModel):
         super().__init__()
         self.__viewmodel = viewmodel
         self.__viewmodel.on_data_changed = self._update_display
@@ -129,7 +129,7 @@ class MainWindow(tk.Tk):
             self.__budget_summary_label.config(text="Бюджеты: Не установлены")
 
     def _open_add_expense_dialog(self):
-        dialog = ExpenseEntryDialog(self, self._on_expense_saved)
+        dialog = ApplicationDialog(self, self._on_expense_saved)
         self.wait_window(dialog)
 
     def _open_edit_expense_dialog(self):
@@ -141,7 +141,7 @@ class MainWindow(tk.Tk):
 
         try:
             selected_expense = self.__current_expenses_display_data[selected_indices[0]]
-            dialog = ExpenseEntryDialog(self, self._on_expense_saved, existing_expense=selected_expense)
+            dialog = ApplicationDialog(self, self._on_expense_saved, existing_expense=selected_expense)
             self.wait_window(dialog)
             self.__viewmodel.delete_expense(selected_expense)
 

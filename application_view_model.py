@@ -1,5 +1,5 @@
 from budget import Budget
-from data_manager import DataManager
+from application_model import ApplicationModel
 from expense import Expense
 
 
@@ -7,8 +7,8 @@ def format_currency(amount: float):
     return f"{amount:,.2f}".replace(',', ' ')
 
 
-class ExpenseViewModel:
-    def __init__(self, data_manager: DataManager):
+class ApplicationViewModel:
+    def __init__(self, data_manager: ApplicationModel):
         self.__data_manager = data_manager
         self.__expenses = []
         self.__budgets = {}

@@ -1,9 +1,9 @@
-from data_manager import DataManager
-from main_window import MainWindow
-from expense_view_model import ExpenseViewModel
+from application_model import ApplicationModel
+from application_view import ApplicationView
+from application_view_model import ApplicationViewModel
 
 if __name__ == "__main__":
-    data_manager = DataManager()
-    viewmodel = ExpenseViewModel(data_manager)
-    app = MainWindow(viewmodel)
+    data_manager = ApplicationModel()
+    viewmodel = ApplicationViewModel(data_manager)
+    app = ApplicationView(viewmodel)
     app.mainloop()

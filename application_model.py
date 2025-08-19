@@ -2,7 +2,7 @@ from budget import Budget
 from expense import Expense
 
 
-class DataManager:
+class ApplicationModel:
     def __init__(self):
         self.__expenses = []
         self.__budgets = {}

@@ -4,7 +4,7 @@ from tkinter import ttk, messagebox
 from expense import Expense
 
 
-class ExpenseEntryDialog(tk.Toplevel):
+class ApplicationDialog(tk.Toplevel):
     def __init__(self, parent, on_save, existing_expense: Expense = None):
         super().__init__(parent)
         self.transient(parent)
