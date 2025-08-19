@@ -4,7 +4,6 @@ def format_currency(amount: int | float):
 
 class Budget:
     def __init__(self, category: str, amount: int | float, spent_amount: int | float = 0, status: str = None):
-
         if not isinstance(category, str) or not category:
             raise ValueError("Категория должна быть непустой строкой.")
 

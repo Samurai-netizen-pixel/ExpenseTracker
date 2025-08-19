@@ -170,6 +170,7 @@ class MainWindow(tk.Tk):
 
     def _on_expense_saved(self, category: str, amount: int | float, description: str):
         success, message = self.__viewmodel.add_expense(category, amount, description)
+
         if not success:
             messagebox.showerror("Ошибка", message)
 

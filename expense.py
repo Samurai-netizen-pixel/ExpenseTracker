@@ -1,6 +1,5 @@
 class Expense:
     def __init__(self, category: str, amount: int | float, description: str = ""):
-
         if not isinstance(category, str) or not category:
             raise ValueError("Категория должна быть непустой строкой.")
 
