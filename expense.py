@@ -3,7 +3,7 @@ class Expense:
         if not isinstance(category, str) or not category:
             raise ValueError("Категория должна быть непустой строкой.")
 
-        if not isinstance(amount, (int, float)) or amount == 0:
+        if not isinstance(amount, (int, float)) or amount <= 0:
             raise ValueError("Сумма должна быть положительным числом.")
 
         self.__category = category

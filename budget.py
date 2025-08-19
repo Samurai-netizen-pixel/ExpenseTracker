@@ -10,7 +10,7 @@ class Budget:
         if not isinstance(spent_amount, (int, float)) or amount <= 0:
             raise ValueError("Сумма трат должна быть положительным числом.")
 
-        if not isinstance(amount, (int, float)) or amount == 0:
+        if not isinstance(amount, (int, float)) or amount <= 0:
             raise ValueError("Сумма бюджета должна быть положительным числом.")
 
         self.__category = category
