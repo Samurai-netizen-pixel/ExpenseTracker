@@ -44,9 +44,6 @@ class ExpenseEntryDialog(tk.Toplevel):
 
         self.__category_entry.focus_set()
 
-        self.bind('&lt;Return&gt;', lambda event=None: self._save_expense())
-        self.bind('&lt;Escape&gt;', lambda event=None: self.destroy())
-
     def _load_existing_data(self):
         if self.__existing_expense:
             self.__category.set(self.__existing_expense.get_category())
