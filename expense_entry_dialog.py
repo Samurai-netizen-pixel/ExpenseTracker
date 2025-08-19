@@ -67,7 +67,7 @@ class ExpenseEntryDialog(tk.Toplevel):
             messagebox.showwarning("Внимание", "Пожалуйста, введите категорию расхода.")
             return
 
-        if not amount_value or not isinstance(amount_value, (int, float)) or amount_value == 0:
+        if not amount_value or not isinstance(amount_value, (int, float)) or amount_value <= 0:
             messagebox.showwarning("Внимание", "Пожалуйста, введите корректную положительную сумму.")
             return
 
