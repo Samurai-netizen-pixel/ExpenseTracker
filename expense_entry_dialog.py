@@ -55,7 +55,7 @@ class ExpenseEntryDialog(tk.Toplevel):
 
         try:
             amount_value = self.__amount.get()
-        except:
+        except tk.TclError:
             amount_value = None
 
         description = self.__description.get().strip()
