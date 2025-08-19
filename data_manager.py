@@ -21,3 +21,6 @@ class DataManager:
 
     def get_all_budgets(self):
         return list(self.__budgets.values())
+
+    def delete_expense(self, expense: Expense):
+        self.__expenses.remove(expense)

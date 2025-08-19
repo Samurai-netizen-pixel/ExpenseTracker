@@ -48,7 +48,7 @@ class ExpenseViewModel:
 
     def delete_expense(self, expense_to_delete: Expense):
         if expense_to_delete in self.__expenses:
-            self.__expenses.remove(expense_to_delete)
+            self.__data_manager.delete_expense(expense_to_delete)
             self.update_data()
             return True, "Расход удален."
 
