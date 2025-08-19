@@ -112,10 +112,10 @@ class MainWindow(tk.Tk):
 
         for category in self.__viewmodel.get_all_categories():
             spent, budget_amount, status = self.__viewmodel.get_budget_status(category)
+            budget = self.__viewmodel.add_and_get_budget_without_update(category, budget_amount, spent, status)
 
             if budget_amount != 0:
-                self.__budgets_listbox.insert(tk.END,
-                                              f"{category}: {format_currency(spent)} / {format_currency(budget_amount)} ({status})")
+                self.__budgets_listbox.insert(tk.END, budget.__str__())
             else:
                 self.__budgets_listbox.insert(tk.END, f"{category}: {format_currency(spent)} (Нет бюджета)")
 
@@ -181,7 +181,14 @@ class MainWindow(tk.Tk):
                                                 parent=self)
             if amount_str and is_float(amount_str):
                 amount = float(amount_str)
-                success, message = self.__viewmodel.add_budget(category, amount)
+                spent_amount = sum(expense.__int__() for expense in self.__viewmodel.get_expenses_by_category(category))
+                remaining = amount - spent_amount
+
+                if remaining >= 0:
+                    status = f"Осталось: {format_currency(remaining)}"
+                else:
+                    status = f"Превышен на: {format_currency(-remaining)}"
+                success, message = self.__viewmodel.add_budget(category, amount, spent_amount, status)
 
                 if not success:
                     messagebox.showerror("Ошибка", message)

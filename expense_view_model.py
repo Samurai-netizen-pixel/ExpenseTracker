@@ -32,14 +32,19 @@ class ExpenseViewModel:
         except ValueError as e:
             return False, str(e)
 
-    def add_budget(self, category: str, amount: int | float):
+    def add_budget(self, category: str, amount: int | float, spent: int | float = 0, status: str = None):
         try:
-            budget = Budget(category, amount)
+            budget = Budget(category, amount, spent, status)
             self.__data_manager.add_budget(budget)
             self.update_data()
             return True, f"Бюджет для '{category}' установлен в {format_currency(amount)}."
         except ValueError as e:
             return False, str(e)
+
+    def add_and_get_budget_without_update(self, category: str, amount: int | float, spent: int | float = 0, status: str = None):
+        budget = Budget(category, amount, spent, status)
+        self.__data_manager.add_budget(budget)
+        return budget
 
     def delete_expense(self, expense_to_delete: Expense):
 
