@@ -23,7 +23,7 @@ class ExpenseViewModel:
         self.__budgets = {budget.get_category(): budget for budget in self.__data_manager.get_all_budgets()}
         self.on_data_changed()
 
-    def add_expense(self, category: str, amount: float, description: str):
+    def add_expense(self, category: str, amount: int | float, description: str):
         try:
             expense = Expense(category, amount, description)
             self.__data_manager.add_expense(expense)
@@ -32,7 +32,7 @@ class ExpenseViewModel:
         except ValueError as e:
             return False, str(e)
 
-    def add_budget(self, category: str, amount: float):
+    def add_budget(self, category: str, amount: int | float):
         try:
             budget = Budget(category, amount)
             self.__data_manager.add_budget(budget)

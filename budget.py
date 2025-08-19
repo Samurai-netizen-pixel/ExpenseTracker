@@ -1,5 +1,5 @@
 class Budget:
-    def __init__(self, category: str, amount: float):
+    def __init__(self, category: str, amount: int | float):
 
         if not isinstance(category, str) or not category:
             raise ValueError("Категория должна быть непустой строкой.")

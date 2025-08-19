@@ -5,11 +5,11 @@ from expense_entry_dialog import ExpenseEntryDialog
 from expense_view_model import ExpenseViewModel
 
 
-def format_currency(amount: float):
+def format_currency(amount: int | float):
     return f"{amount:,.2f}".replace(',', ' ')
 
 
-def is_float(value):
+def is_float(value: str):
     try:
         float(value)
         return True
@@ -168,7 +168,7 @@ class MainWindow(tk.Tk):
             except IndexError:
                 messagebox.showerror("Ошибка", "Не удалось удалить расход. Попробуйте еще раз.")
 
-    def _on_expense_saved(self, category: str, amount: float, description: str):
+    def _on_expense_saved(self, category: str, amount: int | float, description: str):
         success, message = self.__viewmodel.add_expense(category, amount, description)
         if not success:
             messagebox.showerror("Ошибка", message)
