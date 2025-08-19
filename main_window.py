@@ -143,6 +143,7 @@ class MainWindow(tk.Tk):
             selected_expense = self.__current_expenses_display_data[selected_indices[0]]
             dialog = ExpenseEntryDialog(self, self._on_expense_saved, existing_expense=selected_expense)
             self.wait_window(dialog)
+            self.__viewmodel.delete_expense(selected_expense)
 
         except IndexError:
             messagebox.showerror("Ошибка", "Не удалось получить данные выбранного расхода.")
