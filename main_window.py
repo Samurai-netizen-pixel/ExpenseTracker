@@ -5,7 +5,7 @@ from expense_entry_dialog import ExpenseEntryDialog
 from expense_view_model import ExpenseViewModel
 
 
-def format_currency(amount: float):  # Без аннотаций
+def format_currency(amount: float):
     return f"{amount:,.2f}".replace(',', ' ')
 
 
