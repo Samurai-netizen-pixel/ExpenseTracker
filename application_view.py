@@ -123,7 +123,7 @@ class ApplicationView(tk.Tk):
             text=f"Общие расходы: {format_currency(self.__viewmodel.get_total_expenses())}")
 
         if self.__viewmodel.get_all_categories:
-            total_budgeted = sum(budget.__int__() for budget in self.__viewmodel.get_budgets())
+            total_budgeted = sum(budget.get_amount() for budget in self.__viewmodel.get_budgets())
             self.__budget_summary_label.config(text=f"Общие бюджеты: {format_currency(total_budgeted)}")
         else:
             self.__budget_summary_label.config(text="Бюджеты: Не установлены")
@@ -183,7 +183,7 @@ class ApplicationView(tk.Tk):
                                                 parent=self)
             if amount_str and is_float(amount_str):
                 amount = float(amount_str)
-                spent_amount = sum(expense.__int__() for expense in self.__viewmodel.get_expenses_by_category(category))
+                spent_amount = sum(expense.get_amount() for expense in self.__viewmodel.get_expenses_by_category(category))
                 remaining = amount - spent_amount
 
                 if remaining >= 0:

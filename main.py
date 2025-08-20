@@ -6,4 +6,5 @@ if __name__ == "__main__":
     data_manager = ApplicationModel()
     viewmodel = ApplicationViewModel(data_manager)
     app = ApplicationView(viewmodel)
+    viewmodel.update_data()
     app.mainloop()

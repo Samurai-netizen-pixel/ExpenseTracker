@@ -22,10 +22,16 @@ class Budget:
         return f"{self.__category}: {format_currency(self.__spent_amount)} / {format_currency(self.__amount)} ({self.__status})"
 
     def __repr__(self):
-        return f"Budget(category='{self.__category}', amount={self.__amount})"
+        return f"Budget(category='{self.__category}', amount={self.__amount}, spent_amount={self.__spent_amount}, status={self.__status})"
 
     def get_category(self):
         return self.__category
 
-    def __int__(self):
-        return self.__amount
+    def get_spent_amount(self):
+        return self.__spent_amount.__int__()
+
+    def get_amount(self):
+        return self.__amount.__int__()
+
+    def get_status(self):
+        return self.__status

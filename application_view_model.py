@@ -67,14 +67,14 @@ class ApplicationViewModel:
             return 0.0, 0.0,
 
         spent_amount = sum(expense.__int__() for expense in self.get_expenses_by_category(category))
-        remaining = budget.__int__() - spent_amount
+        remaining = budget.get_amount() - spent_amount
 
         if remaining >= 0:
             status = f"Осталось: {format_currency(remaining)}"
         else:
             status = f"Превышен на: {format_currency(-remaining)}"
 
-        return spent_amount, budget.__int__(), status
+        return spent_amount, budget.get_amount(), status
 
     def get_all_categories(self):
         return sorted(list(set(budget for budget in self.__budgets)))
