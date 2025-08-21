@@ -24,7 +24,7 @@ class ApplicationView(tk.Tk):
         self.__viewmodel.on_data_changed = self._update_display
 
         self.title("Трекер Расходов (Без сохранения)")
-        self.geometry("800x600")
+        self.geometry("1200x1200")
 
         self._create_widgets()
         self._update_display()
@@ -35,7 +35,6 @@ class ApplicationView(tk.Tk):
 
         self.__file_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Файл", menu=self.__file_menu)
-        self.__file_menu.add_command(label="Добавить расход", command=self._open_add_expense_dialog)
         self.__file_menu.add_command(label="Установить бюджет", command=self._open_budget_dialog)
         self.__file_menu.add_separator()
         self.__file_menu.add_command(label="Выход", command=self.quit)
@@ -52,30 +51,18 @@ class ApplicationView(tk.Tk):
         self.__budget_summary_label = ttk.Label(self.__stats_frame, text="Бюджеты: -")
         self.__budget_summary_label.grid(row=1, column=0, sticky=tk.W, padx=5)
 
-        self.__expenses_frame = ttk.LabelFrame(self.__main_frame, text="Расходы", padding="10")
-        self.__expenses_frame.grid(row=1, column=0, padx=5)
+        self.__tabs = ttk.Notebook(self.__main_frame)
+        self.__tabs.grid(row=1, column=0, sticky=tk.W, padx=5)
 
-        self.__expenses_listbox = tk.Listbox(self.__expenses_frame, width=50, height=15, font=("Arial", 10))
-        self.__expenses_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        tab_names = ["Все расходы", "Добавить расход", "Удалить или редактировать расходы"]
+        tab_frames = [ttk.Frame(self.__tabs) for _ in range(len(tab_names))]
 
-        self.__scrollbar = ttk.Scrollbar(self.__expenses_frame, orient=tk.VERTICAL,
-                                         command=self.__expenses_listbox.yview)
-        self.__scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        self.__expenses_listbox.config(yscrollcommand=self.__scrollbar.set)
+        for frame, name in zip(tab_frames, tab_names):
+            self.__tabs.add(frame, text=name)
 
-        self.__expense_actions_frame = ttk.Frame(self.__main_frame, padding="5")
-        self.__expense_actions_frame.grid(row=1, column=1, pady=10)
-
-        self.__add_expense_button_toolbar = ttk.Button(self.__expense_actions_frame, text="Добавить",
-                                                       command=self._open_add_expense_dialog)
-        self.__add_expense_button_toolbar.pack(pady=5)
-        self.__edit_expense_button = ttk.Button(self.__expense_actions_frame, text="Редактировать",
-                                                command=self._open_edit_expense_dialog)
-        self.__edit_expense_button.pack(pady=5)
-        self.__delete_expense_button = ttk.Button(self.__expense_actions_frame, text="Удалить",
-
-                                                  command=self._delete_selected_expense)
-        self.__delete_expense_button.pack(pady=5)
+        self._setup_expense_table(tab_frames[0])
+        self._setup_add_expense_form(tab_frames[1])
+        self._setup_delete_expense_form(tab_frames[2])
 
         self.__budgets_frame = ttk.LabelFrame(self.__main_frame, text="Бюджеты", padding="10")
         self.__budgets_frame.grid(row=2, column=0, pady=10)
@@ -100,37 +87,76 @@ class ApplicationView(tk.Tk):
         self.grid_rowconfigure(1, weight=3)
         self.grid_rowconfigure(2, weight=1)
 
-    def _update_display(self):
-        self.__expenses_listbox.delete(0, tk.END)
-        self.__budgets_listbox.delete(0, tk.END)
+    def _setup_expense_table(self, frame):
+        columns = ('Категория', 'Сумма', 'Дата', 'Описание')
+        self.__tree = ttk.Treeview(frame, columns=columns, show='headings')
 
-        self.__current_expenses_display_data = []
+        for col in columns:
+            self.__tree.heading(col, text=col)
+            self.__tree.column(col, minwidth=0, width=100)
 
-        for expense in self.__viewmodel.get_all_expenses():
-            self.__expenses_listbox.insert(tk.END, str(expense))
-            self.__current_expenses_display_data.append(expense)
+        self.__tree.grid(row=0, column=0)
+        frame.columnconfigure(0, weight=1)
 
-        for category in self.__viewmodel.get_all_categories():
-            spent, budget_amount, status = self.__viewmodel.get_budget_status(category)
-            budget = self.__viewmodel.add_and_get_budget_without_update(category, budget_amount, spent, status)
+    def _setup_add_expense_form(self, frame):
+        field_width = 16
 
-            if budget_amount != 0:
-                self.__budgets_listbox.insert(tk.END, budget.__str__())
-            else:
-                self.__budgets_listbox.insert(tk.END, f"{category}: {format_currency(spent)} (Нет бюджета)")
+        ttk.Label(frame, text="Категория:").grid(row=0, column=0, sticky=tk.W, padx=10, pady=5)
+        self.__category_entry = ttk.Entry(frame, width=field_width)
+        self.__category_entry.grid(row=0, column=1, sticky=tk.W, padx=10, pady=5)
 
-        self.__total_expenses_label.config(
-            text=f"Общие расходы: {format_currency(self.__viewmodel.get_total_expenses())}")
+        ttk.Label(frame, text="Сумма:").grid(row=1, column=0, sticky=tk.W, padx=10, pady=5)
+        self.__amount_entry = ttk.Entry(frame, width=field_width)
+        self.__amount_entry.grid(row=1, column=1, sticky=tk.W, padx=10, pady=5)
 
-        if self.__viewmodel.get_all_categories:
-            total_budgeted = sum(budget.get_amount() for budget in self.__viewmodel.get_budgets())
-            self.__budget_summary_label.config(text=f"Общие бюджеты: {format_currency(total_budgeted)}")
-        else:
-            self.__budget_summary_label.config(text="Бюджеты: Не установлены")
+        ttk.Label(frame, text="Описание:").grid(row=3, column=0, sticky=tk.W, padx=10, pady=10)
+        self.__description_entry = tk.Entry(frame, width=field_width)
+        self.__description_entry.grid(row=3, column=1, sticky=tk.W, padx=10, pady=10)
 
-    def _open_add_expense_dialog(self):
-        dialog = ApplicationDialog(self, self._on_expense_saved)
-        self.wait_window(dialog)
+        self.__add_button = ttk.Button(frame, text="Добавить", command=self.add_expense)
+        self.__add_button.grid(row=4, columnspan=2, pady=10)
+
+    def add_expense(self):
+        amount = self.__amount_entry.get().strip()
+        category = self.__category_entry.get()
+        description = self.__description_entry.get().strip()
+
+        try:
+            if not (amount and category and description):
+                raise ValueError("Все поля кроме описания - обязательны!")
+
+            amount = float(amount)
+
+            self.__viewmodel.add_expense(category, amount, description)
+            messagebox.showinfo("Успешно", "Расход успешно добавлен!")
+            self.clear_entries()
+        except ValueError as ve:
+            messagebox.showerror("Ошибка", str(ve))
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Ошибка при добавлении расхода: {e}")
+
+    def _setup_delete_expense_form(self, frame):
+        self.__expenses_frame = ttk.LabelFrame(frame, text="Расходы", padding="10")
+        self.__expenses_frame.grid(row=1, column=0, padx=5)
+
+        self.__expenses_listbox = tk.Listbox(self.__expenses_frame, width=50, height=15, font=("Arial", 10))
+        self.__expenses_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        self.__scrollbar = ttk.Scrollbar(self.__expenses_frame, orient=tk.VERTICAL,
+                                         command=self.__expenses_listbox.yview)
+        self.__scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.__expenses_listbox.config(yscrollcommand=self.__scrollbar.set)
+
+        self.__expense_actions_frame = ttk.Frame(frame, padding="5")
+        self.__expense_actions_frame.grid(row=1, column=1, pady=10)
+
+        self.__edit_expense_button = ttk.Button(self.__expense_actions_frame, text="Редактировать",
+                                                command=self._open_edit_expense_dialog)
+        self.__edit_expense_button.pack(pady=5)
+
+        self.__delete_expense_button = ttk.Button(self.__expense_actions_frame, text="Удалить",
+                                                  command=self._delete_selected_expense)
+        self.__delete_expense_button.pack(pady=5)
 
     def _open_edit_expense_dialog(self):
         selected_indices = self.__expenses_listbox.curselection()
@@ -169,6 +195,38 @@ class ApplicationView(tk.Tk):
             except IndexError:
                 messagebox.showerror("Ошибка", "Не удалось удалить расход. Попробуйте еще раз.")
 
+    def _update_display(self):
+        self.__expenses_listbox.delete(0, tk.END)
+        self.__budgets_listbox.delete(0, tk.END)
+        self.clear_tree()
+
+        expenses = self.__viewmodel.get_all_expenses()
+        self.__current_expenses_display_data = []
+
+        for expense in expenses:
+            self.__tree.insert("", tk.END, values=expense)
+            self.__expenses_listbox.insert(tk.END, expense)
+            self.__current_expenses_display_data.append(expense)
+            print(self.__current_expenses_display_data)
+
+        for category in self.__viewmodel.get_all_categories():
+            spent, budget_amount, status = self.__viewmodel.get_budget_status(category)
+            budget = self.__viewmodel.add_and_get_budget_without_update(category, budget_amount, spent, status)
+
+            if budget_amount != 0:
+                self.__budgets_listbox.insert(tk.END, budget.__str__())
+            else:
+                self.__budgets_listbox.insert(tk.END, f"{category}: {format_currency(spent)} (Нет бюджета)")
+
+        self.__total_expenses_label.config(
+            text=f"Общие расходы: {format_currency(self.__viewmodel.get_total_expenses())}")
+
+        if self.__viewmodel.get_all_categories:
+            total_budgeted = sum(budget.get_amount() for budget in self.__viewmodel.get_budgets())
+            self.__budget_summary_label.config(text=f"Общие бюджеты: {format_currency(total_budgeted)}")
+        else:
+            self.__budget_summary_label.config(text="Бюджеты: Не установлены")
+
     def _on_expense_saved(self, category: str, amount: int | float, description: str):
         success, message = self.__viewmodel.add_expense(category, amount, description)
 
@@ -201,3 +259,12 @@ class ApplicationView(tk.Tk):
 
     def _generate_report(self):
         messagebox.showinfo("Отчеты", "Функция генерации отчетов пока не реализована.")
+
+    def clear_tree(self):
+        for item in self.__tree.get_children():
+            self.__tree.delete(item)
+
+    def clear_entries(self):
+        self.__amount_entry.delete(0, tk.END)
+        self.__category_entry.delete(0, tk.END)
+        self.__description_entry.delete(0, tk.END)
