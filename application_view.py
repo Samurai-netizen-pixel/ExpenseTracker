@@ -241,7 +241,7 @@ class ApplicationView(tk.Tk):
                                                 parent=self)
             if amount_str and is_float(amount_str):
                 amount = float(amount_str)
-                spent_amount = sum(expense.get_amount() for expense in self.__viewmodel.get_expenses_by_category(category))
+                spent_amount = sum(expense.__int__() for expense in self.__viewmodel.get_expenses_by_category(category))
                 remaining = amount - spent_amount
 
                 if remaining >= 0:
