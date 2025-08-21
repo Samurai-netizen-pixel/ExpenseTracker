@@ -31,6 +31,7 @@ class ApplicationModel:
 
     def delete_expense(self, expense: Expense):
         self.__expenses.remove(expense)
+        self._save_data()
 
     def _save_data(self):
         data = {
