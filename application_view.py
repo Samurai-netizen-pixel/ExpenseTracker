@@ -35,7 +35,7 @@ class ApplicationView(tk.Tk):
 
         self.__file_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Файл", menu=self.__file_menu)
-        self.__file_menu.add_command(label="Установить бюджет", command=self._open_budget_dialog)
+        self.__file_menu.add_command(label="Сгенерировать отчет", command=self._generate_report)
         self.__file_menu.add_separator()
         self.__file_menu.add_command(label="Выход", command=self.quit)
 
@@ -75,13 +75,6 @@ class ApplicationView(tk.Tk):
 
         self._setup_budget_table(budget_tab_frames[0])
         self._setup_add_budget_form(budget_tab_frames[1])
-
-        self.__reports_frame = ttk.LabelFrame(self.__main_frame, text="Отчеты", padding="10")
-        self.__reports_frame.grid(row=2, column=1, pady=10)
-
-        self.__generate_report_button = ttk.Button(self.__reports_frame, text="Сгенерировать отчет",
-                                                   command=self._generate_report)
-        self.__generate_report_button.pack(pady=5)
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
