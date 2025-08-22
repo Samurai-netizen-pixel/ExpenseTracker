@@ -19,7 +19,7 @@ class Budget:
         self.__status = status
 
     def __str__(self):
-        return f"{self.__category}: {format_currency(self.__spent_amount)} / {format_currency(self.__amount)} ({self.__status})"
+        return f"{self.__category}: {format_currency(self.__spent_amount)}  {format_currency(self.__amount)} {self.__status}"
 
     def __repr__(self):
         return f"Budget(category='{self.__category}', amount={self.__amount}, spent_amount={self.__spent_amount}, status={self.__status})"

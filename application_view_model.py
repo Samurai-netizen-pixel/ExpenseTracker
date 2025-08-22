@@ -70,9 +70,9 @@ class ApplicationViewModel:
         remaining = budget.get_amount() - spent_amount
 
         if remaining >= 0:
-            status = f"Осталось: {format_currency(remaining)}"
+            status = f"{format_currency(remaining)}"
         else:
-            status = f"Превышен на: {format_currency(-remaining)}"
+            status = f"{format_currency(-remaining)}"
 
         return spent_amount, budget.get_amount(), status
 

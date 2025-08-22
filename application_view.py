@@ -51,29 +51,30 @@ class ApplicationView(tk.Tk):
         self.__budget_summary_label = ttk.Label(self.__stats_frame, text="Бюджеты: -")
         self.__budget_summary_label.grid(row=1, column=0, sticky=tk.W, padx=5)
 
-        self.__tabs = ttk.Notebook(self.__main_frame)
-        self.__tabs.grid(row=1, column=0, sticky=tk.W, padx=5)
+        self.__expense_tabs = ttk.Notebook(self.__main_frame)
+        self.__expense_tabs.grid(row=1, column=0, sticky=tk.W, padx=5)
 
-        tab_names = ["Все расходы", "Добавить расход", "Удалить или редактировать расходы"]
-        tab_frames = [ttk.Frame(self.__tabs) for _ in range(len(tab_names))]
+        expense_tab_names = ["Все расходы", "Добавить расход", "Удалить или редактировать расходы"]
+        expense_tab_frames = [ttk.Frame(self.__expense_tabs) for _ in range(len(expense_tab_names))]
 
-        for frame, name in zip(tab_frames, tab_names):
-            self.__tabs.add(frame, text=name)
+        for frame, name in zip(expense_tab_frames, expense_tab_names):
+            self.__expense_tabs.add(frame, text=name)
 
-        self._setup_expense_table(tab_frames[0])
-        self._setup_add_expense_form(tab_frames[1])
-        self._setup_delete_expense_form(tab_frames[2])
+        self._setup_expense_table(expense_tab_frames[0])
+        self._setup_add_expense_form(expense_tab_frames[1])
+        self._setup_delete_expense_form(expense_tab_frames[2])
 
-        self.__budgets_frame = ttk.LabelFrame(self.__main_frame, text="Бюджеты", padding="10")
-        self.__budgets_frame.grid(row=2, column=0, pady=10)
+        self.__budget_tabs = ttk.Notebook(self.__main_frame)
+        self.__budget_tabs.grid(row=2, column=0, sticky=tk.W, padx=5)
 
-        self.__budgets_listbox = tk.Listbox(self.__budgets_frame, width=50, height=5, font=("Arial", 10))
-        self.__budgets_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        budget_tab_names = ["Все бюджеты", "Добавить бюджет"]
+        budget_tab_frames = [ttk.Frame(self.__budget_tabs) for _ in range(len(budget_tab_names))]
 
-        self.__budgets_scrollbar = ttk.Scrollbar(self.__budgets_frame, orient=tk.VERTICAL,
-                                                 command=self.__budgets_listbox.yview)
-        self.__budgets_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        self.__budgets_listbox.config(yscrollcommand=self.__budgets_scrollbar.set)
+        for frame, name in zip(budget_tab_frames, budget_tab_names):
+            self.__budget_tabs.add(frame, text=name)
+
+        self._setup_budget_table(budget_tab_frames[0])
+        self._setup_add_budget_form(budget_tab_frames[1])
 
         self.__reports_frame = ttk.LabelFrame(self.__main_frame, text="Отчеты", padding="10")
         self.__reports_frame.grid(row=2, column=1, pady=10)
@@ -89,51 +90,109 @@ class ApplicationView(tk.Tk):
 
     def _setup_expense_table(self, frame):
         columns = ('Категория', 'Сумма', 'Дата', 'Описание')
-        self.__tree = ttk.Treeview(frame, columns=columns, show='headings')
+        self.__expense_tree = ttk.Treeview(frame, columns=columns, show='headings')
 
         for col in columns:
-            self.__tree.heading(col, text=col)
-            self.__tree.column(col, minwidth=0, width=100)
+            self.__expense_tree.heading(col, text=col)
+            self.__expense_tree.column(col, minwidth=0, width=100)
 
-        self.__tree.grid(row=0, column=0)
+        self.__expense_tree.grid(row=0, column=0)
+        frame.columnconfigure(0, weight=1)
+
+    def _setup_budget_table(self, frame):
+        columns = ('Категория', 'Потрачено', 'Общая сумма', 'Остаток')
+        self.__budget_tree = ttk.Treeview(frame, columns=columns, show='headings')
+
+        for col in columns:
+            self.__budget_tree.heading(col, text=col)
+            self.__budget_tree.column(col, minwidth=0, width=100)
+
+        self.__budget_tree.grid(row=0, column=0)
         frame.columnconfigure(0, weight=1)
 
     def _setup_add_expense_form(self, frame):
         field_width = 16
 
         ttk.Label(frame, text="Категория:").grid(row=0, column=0, sticky=tk.W, padx=10, pady=5)
-        self.__category_entry = ttk.Entry(frame, width=field_width)
-        self.__category_entry.grid(row=0, column=1, sticky=tk.W, padx=10, pady=5)
+        self.__expense_category_entry = ttk.Entry(frame, width=field_width)
+        self.__expense_category_entry.grid(row=0, column=1, sticky=tk.W, padx=10, pady=5)
 
         ttk.Label(frame, text="Сумма:").grid(row=1, column=0, sticky=tk.W, padx=10, pady=5)
-        self.__amount_entry = ttk.Entry(frame, width=field_width)
-        self.__amount_entry.grid(row=1, column=1, sticky=tk.W, padx=10, pady=5)
+        self.__expense_amount_entry = ttk.Entry(frame, width=field_width)
+        self.__expense_amount_entry.grid(row=1, column=1, sticky=tk.W, padx=10, pady=5)
 
         ttk.Label(frame, text="Описание:").grid(row=3, column=0, sticky=tk.W, padx=10, pady=10)
-        self.__description_entry = tk.Entry(frame, width=field_width)
-        self.__description_entry.grid(row=3, column=1, sticky=tk.W, padx=10, pady=10)
+        self.__expense_description_entry = tk.Entry(frame, width=field_width)
+        self.__expense_description_entry.grid(row=3, column=1, sticky=tk.W, padx=10, pady=10)
 
         self.__add_button = ttk.Button(frame, text="Добавить", command=self.add_expense)
         self.__add_button.grid(row=4, columnspan=2, pady=10)
 
     def add_expense(self):
-        amount = self.__amount_entry.get().strip()
-        category = self.__category_entry.get()
-        description = self.__description_entry.get().strip()
+        amount = self.__expense_amount_entry.get().strip()
+        category = self.__expense_category_entry.get()
+        description = self.__expense_description_entry.get().strip()
 
         try:
-            if not (amount and category and description):
+            if not (amount and category):
                 raise ValueError("Все поля кроме описания - обязательны!")
 
             amount = float(amount)
 
             self.__viewmodel.add_expense(category, amount, description)
             messagebox.showinfo("Успешно", "Расход успешно добавлен!")
-            self.clear_entries()
+            self.clear_expense_entries()
         except ValueError as ve:
             messagebox.showerror("Ошибка", str(ve))
         except Exception as e:
             messagebox.showerror("Ошибка", f"Ошибка при добавлении расхода: {e}")
+
+    def _setup_add_budget_form(self, frame):
+        field_width = 16
+
+        ttk.Label(frame, text="Категория:").grid(row=0, column=0, sticky=tk.W, padx=10, pady=5)
+        self.__budget_category_entry = ttk.Entry(frame, width=field_width)
+        self.__budget_category_entry.grid(row=0, column=1, sticky=tk.W, padx=10, pady=5)
+
+        ttk.Label(frame, text="Сумма:").grid(row=1, column=0, sticky=tk.W, padx=10, pady=5)
+        self.__budget_amount_entry = ttk.Entry(frame, width=field_width)
+        self.__budget_amount_entry.grid(row=1, column=1, sticky=tk.W, padx=10, pady=5)
+
+        self.__add_button = ttk.Button(frame, text="Добавить", command=self.add_budget)
+        self.__add_button.grid(row=4, columnspan=2, pady=10)
+
+    def add_budget(self):
+        confirm = messagebox.askyesno("Подтверждение",
+                                      "Вы уверены, что хотите добавить это бюджет?\nПосле добавления его нельзя будет изменить!")
+
+        if confirm:
+            amount = self.__budget_amount_entry.get().strip()
+            category = self.__budget_category_entry.get()
+
+            try:
+                if not (amount and category):
+                    raise ValueError("Все поля обязательны!")
+
+                amount = float(amount)
+                spent_amount = sum(expense.__int__() for expense in self.__viewmodel.get_expenses_by_category(category))
+                remaining = amount - spent_amount
+
+                if remaining >= 0:
+                    status = f"Осталось: {format_currency(remaining)}"
+                else:
+                    status = f"Превышен на: {format_currency(-remaining)}"
+                success, message = self.__viewmodel.add_budget(category, amount, spent_amount, status)
+
+                if not success:
+                    messagebox.showerror("Ошибка", message)
+
+                self.__viewmodel.add_budget(category, amount, spent_amount, status)
+                messagebox.showinfo("Успешно", "Бюджет успешно добавлен!")
+                self.clear_budget_entries()
+            except ValueError as ve:
+                messagebox.showerror("Ошибка", str(ve))
+            except Exception as e:
+                messagebox.showerror("Ошибка", f"Ошибка при добавлении бюджета: {e}")
 
     def _setup_delete_expense_form(self, frame):
         self.__expenses_frame = ttk.LabelFrame(frame, text="Расходы", padding="10")
@@ -197,14 +256,14 @@ class ApplicationView(tk.Tk):
 
     def _update_display(self):
         self.__expenses_listbox.delete(0, tk.END)
-        self.__budgets_listbox.delete(0, tk.END)
-        self.clear_tree()
+        self.clear_expense_tree()
+        self.clear_budget_tree()
 
         expenses = self.__viewmodel.get_all_expenses()
         self.__current_expenses_display_data = []
 
         for expense in expenses:
-            self.__tree.insert("", tk.END, values=expense)
+            self.__expense_tree.insert("", tk.END, values=expense)
             self.__expenses_listbox.insert(tk.END, expense)
             self.__current_expenses_display_data.append(expense)
             print(self.__current_expenses_display_data)
@@ -212,11 +271,7 @@ class ApplicationView(tk.Tk):
         for category in self.__viewmodel.get_all_categories():
             spent, budget_amount, status = self.__viewmodel.get_budget_status(category)
             budget = self.__viewmodel.add_and_get_budget_without_update(category, budget_amount, spent, status)
-
-            if budget_amount != 0:
-                self.__budgets_listbox.insert(tk.END, budget.__str__())
-            else:
-                self.__budgets_listbox.insert(tk.END, f"{category}: {format_currency(spent)} (Нет бюджета)")
+            self.__budget_tree.insert("", tk.END, values=budget)
 
         self.__total_expenses_label.config(
             text=f"Общие расходы: {format_currency(self.__viewmodel.get_total_expenses())}")
@@ -260,11 +315,19 @@ class ApplicationView(tk.Tk):
     def _generate_report(self):
         messagebox.showinfo("Отчеты", "Функция генерации отчетов пока не реализована.")
 
-    def clear_tree(self):
-        for item in self.__tree.get_children():
-            self.__tree.delete(item)
+    def clear_expense_tree(self):
+        for item in self.__expense_tree.get_children():
+            self.__expense_tree.delete(item)
 
-    def clear_entries(self):
-        self.__amount_entry.delete(0, tk.END)
-        self.__category_entry.delete(0, tk.END)
-        self.__description_entry.delete(0, tk.END)
+    def clear_budget_tree(self):
+        for item in self.__budget_tree.get_children():
+            self.__budget_tree.delete(item)
+
+    def clear_expense_entries(self):
+        self.__expense_amount_entry.delete(0, tk.END)
+        self.__expense_category_entry.delete(0, tk.END)
+        self.__expense_description_entry.delete(0, tk.END)
+
+    def clear_budget_entries(self):
+        self.__budget_amount_entry.delete(0, tk.END)
+        self.__budget_category_entry.delete(0, tk.END)
