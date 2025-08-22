@@ -266,7 +266,6 @@ class ApplicationView(tk.Tk):
             self.__expense_tree.insert("", tk.END, values=expense)
             self.__expenses_listbox.insert(tk.END, expense)
             self.__current_expenses_display_data.append(expense)
-            print(self.__current_expenses_display_data)
 
         for category in self.__viewmodel.get_all_categories():
             spent, budget_amount, status = self.__viewmodel.get_budget_status(category)
