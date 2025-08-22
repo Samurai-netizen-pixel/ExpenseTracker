@@ -24,7 +24,7 @@ class ApplicationView(tk.Tk):
         self.__viewmodel.on_data_changed = self._update_display
 
         self.title("Трекер Расходов (Без сохранения)")
-        self.geometry("1200x1200")
+        self.geometry("435x700")
 
         self._create_widgets()
         self._update_display()
@@ -89,7 +89,7 @@ class ApplicationView(tk.Tk):
             self.__expense_tree.heading(col, text=col)
             self.__expense_tree.column(col, minwidth=0, width=100)
 
-        self.__expense_tree.grid(row=0, column=0)
+        self.__expense_tree.grid(row=0, column=0, sticky=tk.W)
         frame.columnconfigure(0, weight=1)
 
     def _setup_budget_table(self, frame):
@@ -100,7 +100,7 @@ class ApplicationView(tk.Tk):
             self.__budget_tree.heading(col, text=col)
             self.__budget_tree.column(col, minwidth=0, width=100)
 
-        self.__budget_tree.grid(row=0, column=0)
+        self.__budget_tree.grid(row=0, column=0, sticky=tk.W)
         frame.columnconfigure(0, weight=1)
 
     def _setup_add_expense_form(self, frame):
