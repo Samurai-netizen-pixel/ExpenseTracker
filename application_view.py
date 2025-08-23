@@ -54,15 +54,15 @@ class ApplicationView(tk.Tk):
         self.__expense_tabs = ttk.Notebook(self.__main_frame)
         self.__expense_tabs.grid(row=1, column=0, sticky=tk.W, padx=5)
 
-        expense_tab_names = ["Все расходы", "Добавить расход", "Удалить или редактировать расходы"]
+        expense_tab_names = ["Все расходы", "Удалить или редактировать расходы"]
         expense_tab_frames = [ttk.Frame(self.__expense_tabs) for _ in range(len(expense_tab_names))]
 
         for frame, name in zip(expense_tab_frames, expense_tab_names):
             self.__expense_tabs.add(frame, text=name)
 
         self._setup_expense_table(expense_tab_frames[0])
-        self._setup_add_expense_form(expense_tab_frames[1])
-        self._setup_delete_expense_form(expense_tab_frames[2])
+
+        self._setup_delete_expense_form(expense_tab_frames[1])
 
         self.__budget_tabs = ttk.Notebook(self.__main_frame)
         self.__budget_tabs.grid(row=2, column=0, sticky=tk.W, padx=5)
@@ -102,43 +102,6 @@ class ApplicationView(tk.Tk):
 
         self.__budget_tree.grid(row=0, column=0, sticky=tk.W)
         frame.columnconfigure(0, weight=1)
-
-    def _setup_add_expense_form(self, frame):
-        field_width = 16
-
-        ttk.Label(frame, text="Категория:").grid(row=0, column=0, sticky=tk.W, padx=10, pady=5)
-        self.__expense_category_entry = ttk.Entry(frame, width=field_width)
-        self.__expense_category_entry.grid(row=0, column=1, sticky=tk.W, padx=10, pady=5)
-
-        ttk.Label(frame, text="Сумма:").grid(row=1, column=0, sticky=tk.W, padx=10, pady=5)
-        self.__expense_amount_entry = ttk.Entry(frame, width=field_width)
-        self.__expense_amount_entry.grid(row=1, column=1, sticky=tk.W, padx=10, pady=5)
-
-        ttk.Label(frame, text="Описание:").grid(row=3, column=0, sticky=tk.W, padx=10, pady=10)
-        self.__expense_description_entry = tk.Entry(frame, width=field_width)
-        self.__expense_description_entry.grid(row=3, column=1, sticky=tk.W, padx=10, pady=10)
-
-        self.__add_button = ttk.Button(frame, text="Добавить", command=self.add_expense)
-        self.__add_button.grid(row=4, columnspan=2, pady=10)
-
-    def add_expense(self):
-        amount = self.__expense_amount_entry.get().strip()
-        category = self.__expense_category_entry.get()
-        description = self.__expense_description_entry.get().strip()
-
-        try:
-            if not (amount and category):
-                raise ValueError("Все поля кроме описания - обязательны!")
-
-            amount = float(amount)
-
-            self.__viewmodel.add_expense(category, amount, description)
-            messagebox.showinfo("Успешно", "Расход успешно добавлен!")
-            self.clear_expense_entries()
-        except ValueError as ve:
-            messagebox.showerror("Ошибка", str(ve))
-        except Exception as e:
-            messagebox.showerror("Ошибка", f"Ошибка при добавлении расхода: {e}")
 
     def _setup_add_budget_form(self, frame):
         field_width = 16
@@ -314,11 +277,6 @@ class ApplicationView(tk.Tk):
     def clear_budget_tree(self):
         for item in self.__budget_tree.get_children():
             self.__budget_tree.delete(item)
-
-    def clear_expense_entries(self):
-        self.__expense_amount_entry.delete(0, tk.END)
-        self.__expense_category_entry.delete(0, tk.END)
-        self.__expense_description_entry.delete(0, tk.END)
 
     def clear_budget_entries(self):
         self.__budget_amount_entry.delete(0, tk.END)
